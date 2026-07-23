@@ -1,5 +1,5 @@
-import { createApi, fetchBaseQuery, retry } from "@reduxjs/toolkit/query/react";
-import { logout } from "../features/auth/authSlice";
+import { createApi, fetchBaseQuery, retry } from '@reduxjs/toolkit/query/react';
+import { logout } from '../features/auth/authSlice';
 
 const getTokenFromCookies = () => {
   const match = document.cookie.match(/token=([^;]+)/);
@@ -7,11 +7,11 @@ const getTokenFromCookies = () => {
 };
 
 const baseQuery = fetchBaseQuery({
-  baseUrl: import.meta.env.VITE_API_URL || "/api/v1",
-  credentials: "include",
+  baseUrl: import.meta.env.VITE_API_URL || '/api/v1',
+  credentials: 'include',
   prepareHeaders: (headers) => {
     const token = getTokenFromCookies();
-    if (token) headers.set("Authorization", `Bearer ${token}`);
+    if (token) headers.set('Authorization', `Bearer ${token}`);
     return headers;
   },
 });
@@ -22,9 +22,9 @@ const baseQueryWithReauth = async (args, api, extraOptions) => {
   if (result.error && result.error.status === 401) {
     // Try to refresh token
     const refreshResult = await baseQuery(
-      { url: "/auth/refresh-token", method: "POST" },
+      { url: '/auth/refresh-token', method: 'POST' },
       api,
-      extraOptions,
+      extraOptions
     );
     if (refreshResult.data) {
       // Retry the original request
@@ -40,218 +40,218 @@ const baseQueryWithReauth = async (args, api, extraOptions) => {
 const customBaseQuery = retry(baseQueryWithReauth, { maxRetries: 2 });
 
 export const apiSlice = createApi({
-  reducerPath: "api",
+  reducerPath: 'api',
   baseQuery: customBaseQuery,
-  tagTypes: ["User", "Car", "Booking", "Coupon", "Ticket", "Notification"],
+  tagTypes: ['User', 'Car', 'Booking', 'Coupon', 'Ticket', 'Notification'],
   endpoints: (builder) => ({
     // ========== AUTH ==========
     getMe: builder.query({
-      query: () => "/auth/me",
-      providesTags: ["User"],
+      query: () => '/auth/me',
+      providesTags: ['User'],
     }),
     register: builder.mutation({
       query: (data) => ({
-        url: "/auth/register",
-        method: "POST",
+        url: '/auth/register',
+        method: 'POST',
         body: data,
       }),
     }),
     login: builder.mutation({
       query: (credentials) => ({
-        url: "/auth/login",
-        method: "POST",
+        url: '/auth/login',
+        method: 'POST',
         body: credentials,
       }),
-      invalidatesTags: ["User"],
+      invalidatesTags: ['User'],
     }),
     logout: builder.mutation({
       query: () => ({
-        url: "/auth/logout",
-        method: "POST",
+        url: '/auth/logout',
+        method: 'POST',
       }),
-      invalidatesTags: ["User"],
+      invalidatesTags: ['User'],
     }),
     refreshToken: builder.mutation({
       query: () => ({
-        url: "/auth/refresh-token",
-        method: "POST",
+        url: '/auth/refresh-token',
+        method: 'POST',
       }),
     }),
     verifyEmail: builder.mutation({
       query: (token) => ({
         url: `/auth/verify-email/${token}`,
-        method: "GET",
+        method: 'GET',
       }),
     }),
     forgotPassword: builder.mutation({
       query: (email) => ({
-        url: "/auth/forgot-password",
-        method: "POST",
+        url: '/auth/forgot-password',
+        method: 'POST',
         body: { email },
       }),
     }),
     resetPassword: builder.mutation({
       query: ({ token, newPassword }) => ({
-        url: "/auth/reset-password",
-        method: "POST",
+        url: '/auth/reset-password',
+        method: 'POST',
         body: { token, newPassword },
       }),
     }),
     updateProfile: builder.mutation({
       query: (data) => ({
-        url: "/auth/profile",
-        method: "PUT",
+        url: '/auth/profile',
+        method: 'PUT',
         body: data,
       }),
-      invalidatesTags: ["User"],
+      invalidatesTags: ['User'],
     }),
     updateProfilePicture: builder.mutation({
       query: (formData) => ({
-        url: "/auth/profile-picture",
-        method: "PUT",
+        url: '/auth/profile-picture',
+        method: 'PUT',
         body: formData,
       }),
-      invalidatesTags: ["User"],
+      invalidatesTags: ['User'],
     }),
     sendPhoneOTP: builder.mutation({
       query: (data) => ({
-        url: "/auth/send-otp",
-        method: "POST",
+        url: '/auth/send-otp',
+        method: 'POST',
         body: data,
       }),
     }),
     verifyPhoneOTP: builder.mutation({
       query: (data) => ({
-        url: "/auth/verify-otp",
-        method: "POST",
+        url: '/auth/verify-otp',
+        method: 'POST',
         body: data,
       }),
-      invalidatesTags: ["User"],
+      invalidatesTags: ['User'],
     }),
     uploadLicenseImage: builder.mutation({
       query: (formData) => ({
-        url: "/auth/upload-license",
-        method: "PUT",
+        url: '/auth/upload-license',
+        method: 'PUT',
         body: formData,
       }),
-      invalidatesTags: ["User"],
+      invalidatesTags: ['User'],
     }),
     uploadIdImage: builder.mutation({
       query: (formData) => ({
-        url: "/auth/upload-id",
-        method: "PUT",
+        url: '/auth/upload-id',
+        method: 'PUT',
         body: formData,
       }),
-      invalidatesTags: ["User"],
+      invalidatesTags: ['User'],
     }),
     submitVerification: builder.mutation({
       query: () => ({
-        url: "/auth/submit-verification",
-        method: "POST",
+        url: '/auth/submit-verification',
+        method: 'POST',
       }),
-      invalidatesTags: ["User"],
+      invalidatesTags: ['User'],
     }),
     getVerificationStatus: builder.query({
-      query: () => "/auth/verification-status",
-      providesTags: ["User"],
+      query: () => '/auth/verification-status',
+      providesTags: ['User'],
     }),
 
     // ========== CARS ==========
     getCars: builder.query({
-      query: (params) => ({ url: "/cars", params }),
-      providesTags: ["Car"],
+      query: (params) => ({ url: '/cars', params }),
+      providesTags: ['Car'],
       keepUnusedDataFor: 60,
     }),
     getCar: builder.query({
       query: (id) => `/cars/${id}`,
-      providesTags: (result, error, id) => [{ type: "Car", id }],
+      providesTags: (result, error, id) => [{ type: 'Car', id }],
       keepUnusedDataFor: 300,
     }),
     createCar: builder.mutation({
       query: (formData) => ({
-        url: "/cars",
-        method: "POST",
+        url: '/cars',
+        method: 'POST',
         body: formData,
       }),
-      invalidatesTags: ["Car"],
+      invalidatesTags: ['Car'],
     }),
     updateCar: builder.mutation({
       query: ({ id, data }) => ({
         url: `/cars/${id}`,
-        method: "PUT",
+        method: 'PUT',
         body: data,
       }),
-      invalidatesTags: (result, error, { id }) => [{ type: "Car", id }],
+      invalidatesTags: (result, error, { id }) => [{ type: 'Car', id }],
     }),
     deleteCar: builder.mutation({
       query: (id) => ({
         url: `/cars/${id}`,
-        method: "DELETE",
+        method: 'DELETE',
       }),
-      invalidatesTags: ["Car"],
+      invalidatesTags: ['Car'],
     }),
 
     // ========== BOOKINGS ==========
     getMyBookings: builder.query({
-      query: () => "/bookings",
-      providesTags: ["Booking"],
+      query: () => '/bookings',
+      providesTags: ['Booking'],
       keepUnusedDataFor: 300,
     }),
     getBooking: builder.query({
       query: (id) => `/bookings/${id}`,
-      providesTags: (result, error, id) => [{ type: "Booking", id }],
+      providesTags: (result, error, id) => [{ type: 'Booking', id }],
     }),
     createBooking: builder.mutation({
       query: (data) => ({
-        url: "/bookings",
-        method: "POST",
+        url: '/bookings',
+        method: 'POST',
         body: data,
       }),
-      invalidatesTags: ["Booking", "Car"],
+      invalidatesTags: ['Booking', 'Car'],
     }),
     updateBooking: builder.mutation({
       query: ({ id, data }) => ({
         url: `/bookings/${id}`,
-        method: "PUT",
+        method: 'PUT',
         body: data,
       }),
-      invalidatesTags: (result, error, { id }) => [{ type: "Booking", id }],
+      invalidatesTags: (result, error, { id }) => [{ type: 'Booking', id }],
     }),
     updateBookingStatus: builder.mutation({
       query: ({ id, status }) => ({
         url: `/bookings/${id}/status`,
-        method: "PUT",
+        method: 'PUT',
         body: { status },
       }),
-      invalidatesTags: (result, error, { id }) => [{ type: "Booking", id }],
+      invalidatesTags: (result, error, { id }) => [{ type: 'Booking', id }],
     }),
     cancelBooking: builder.mutation({
       query: (id) => ({
         url: `/bookings/${id}/cancel`,
-        method: "PUT",
+        method: 'PUT',
       }),
-      invalidatesTags: (result, error, id) => [{ type: "Booking", id }],
+      invalidatesTags: (result, error, id) => [{ type: 'Booking', id }],
     }),
     adminCancelBooking: builder.mutation({
       query: (id) => ({
         url: `/bookings/admin/cancel/${id}`,
-        method: "PUT",
+        method: 'PUT',
       }),
-      invalidatesTags: (result, error, id) => [{ type: "Booking", id }],
+      invalidatesTags: (result, error, id) => [{ type: 'Booking', id }],
     }),
     markReturned: builder.mutation({
       query: (id) => ({
         url: `/bookings/admin/return/${id}`,
-        method: "PUT",
+        method: 'PUT',
       }),
-      invalidatesTags: (result, error, id) => [{ type: "Booking", id }],
+      invalidatesTags: (result, error, id) => [{ type: 'Booking', id }],
     }),
 
     // ========== PAYMENTS ==========
     initiatePayment: builder.mutation({
       query: ({ bookingId, method }) => ({
-        url: "/payments/initiate",
-        method: "POST",
+        url: '/payments/initiate',
+        method: 'POST',
         body: { bookingId, method },
       }),
     }),
@@ -263,133 +263,133 @@ export const apiSlice = createApi({
     }),
     createReview: builder.mutation({
       query: (data) => ({
-        url: "/reviews",
-        method: "POST",
+        url: '/reviews',
+        method: 'POST',
         body: data,
       }),
     }),
 
     // ========== COUPONS ==========
     getCoupons: builder.query({
-      query: () => "/coupons",
-      providesTags: ["Coupon"],
+      query: () => '/coupons',
+      providesTags: ['Coupon'],
       keepUnusedDataFor: 300,
     }),
     createCoupon: builder.mutation({
       query: (data) => ({
-        url: "/coupons",
-        method: "POST",
+        url: '/coupons',
+        method: 'POST',
         body: data,
       }),
-      invalidatesTags: ["Coupon"],
+      invalidatesTags: ['Coupon'],
     }),
     updateCoupon: builder.mutation({
       query: ({ id, data }) => ({
         url: `/coupons/${id}`,
-        method: "PUT",
+        method: 'PUT',
         body: data,
       }),
-      invalidatesTags: (result, error, { id }) => [{ type: "Coupon", id }],
+      invalidatesTags: (result, error, { id }) => [{ type: 'Coupon', id }],
     }),
     deleteCoupon: builder.mutation({
       query: (id) => ({
         url: `/coupons/${id}`,
-        method: "DELETE",
+        method: 'DELETE',
       }),
-      invalidatesTags: ["Coupon"],
+      invalidatesTags: ['Coupon'],
     }),
     validateCoupon: builder.mutation({
       query: ({ code, bookingTotal }) => ({
-        url: "/coupons/validate",
-        method: "POST",
+        url: '/coupons/validate',
+        method: 'POST',
         body: { code, bookingTotal },
       }),
     }),
 
     // ========== TICKETS ==========
     getTickets: builder.query({
-      query: () => "/tickets",
-      providesTags: ["Ticket"],
+      query: () => '/tickets',
+      providesTags: ['Ticket'],
       keepUnusedDataFor: 300,
     }),
     getTicket: builder.query({
       query: (id) => `/tickets/${id}`,
-      providesTags: (result, error, id) => [{ type: "Ticket", id }],
+      providesTags: (result, error, id) => [{ type: 'Ticket', id }],
     }),
     createTicket: builder.mutation({
       query: (data) => ({
-        url: "/tickets",
-        method: "POST",
+        url: '/tickets',
+        method: 'POST',
         body: data,
       }),
-      invalidatesTags: ["Ticket"],
+      invalidatesTags: ['Ticket'],
     }),
     updateTicketStatus: builder.mutation({
       query: ({ id, status }) => ({
         url: `/tickets/${id}/status`,
-        method: "PUT",
+        method: 'PUT',
         body: { status },
       }),
-      invalidatesTags: (result, error, { id }) => [{ type: "Ticket", id }],
+      invalidatesTags: (result, error, { id }) => [{ type: 'Ticket', id }],
     }),
     addTicketResponse: builder.mutation({
       query: ({ id, message }) => ({
         url: `/tickets/${id}/response`,
-        method: "POST",
+        method: 'POST',
         body: { message },
       }),
-      invalidatesTags: (result, error, { id }) => [{ type: "Ticket", id }],
+      invalidatesTags: (result, error, { id }) => [{ type: 'Ticket', id }],
     }),
     deleteTicket: builder.mutation({
       query: (id) => ({
         url: `/tickets/${id}`,
-        method: "DELETE",
+        method: 'DELETE',
       }),
-      invalidatesTags: ["Ticket"],
+      invalidatesTags: ['Ticket'],
     }),
 
     // ========== ADMIN ==========
     getUsers: builder.query({
-      query: () => "/admin/users",
-      providesTags: ["User"],
+      query: () => '/admin/users',
+      providesTags: ['User'],
       keepUnusedDataFor: 300,
     }),
     getUserDetails: builder.query({
       query: (userId) => `/admin/users/${userId}`,
-      providesTags: (result, error, userId) => [{ type: "User", id: userId }],
+      providesTags: (result, error, userId) => [{ type: 'User', id: userId }],
     }),
     updateUserRole: builder.mutation({
       query: ({ id, role }) => ({
         url: `/admin/users/${id}/role`,
-        method: "PUT",
+        method: 'PUT',
         body: { role },
       }),
-      invalidatesTags: ["User"],
+      invalidatesTags: ['User'],
     }),
     toggleUserActive: builder.mutation({
       query: (id) => ({
         url: `/admin/users/${id}/toggle`,
-        method: "PUT",
+        method: 'PUT',
       }),
-      invalidatesTags: ["User"],
+      invalidatesTags: ['User'],
     }),
     getUserBookings: builder.query({
       query: (userId) => `/admin/users/${userId}/bookings`,
-      providesTags: ["Booking"],
+      providesTags: ['Booking'],
     }),
     getCarBookings: builder.query({
       query: (carId) => `/admin/cars/${carId}/bookings`,
-      providesTags: ["Booking"],
+      providesTags: ['Booking'],
       keepUnusedDataFor: 60,
     }),
     getAllBookings: builder.query({
-      query: () => "/admin/bookings",
-      providesTags: ["Booking"],
+      query: () => '/admin/bookings',
+      providesTags: ['Booking'],
       keepUnusedDataFor: 300,
     }),
     getBookedCars: builder.query({
-      query: () => "/admin/booked-cars",
-      providesTags: ["Booking"],
+      query: () => '/admin/booked-cars',
+      providesTags: ['Booking'],
       keepUnusedDataFor: 60,
     }),
     getRevenueReport: builder.query({
@@ -397,55 +397,58 @@ export const apiSlice = createApi({
       keepUnusedDataFor: 600,
     }),
     getUtilisationReport: builder.query({
-      query: () => "/admin/reports/utilisation",
+      query: () => '/admin/reports/utilisation',
       keepUnusedDataFor: 600,
     }),
     getPendingVerifications: builder.query({
-      query: () => "/admin/verifications/pending",
-      providesTags: ["User"],
+      query: () => '/admin/verifications/pending',
+      providesTags: ['User'],
       keepUnusedDataFor: 60,
     }),
     approveVerification: builder.mutation({
       query: (userId) => ({
         url: `/admin/verifications/${userId}/approve`,
-        method: "PUT",
+        method: 'PUT',
       }),
-      invalidatesTags: ["User"],
+      invalidatesTags: ['User'],
     }),
     rejectVerification: builder.mutation({
       query: ({ userId, reason }) => ({
         url: `/admin/verifications/${userId}/reject`,
-        method: "PUT",
+        method: 'PUT',
         body: { reason },
       }),
-      invalidatesTags: ["User"],
+      invalidatesTags: ['User'],
     }),
 
     // ========== NOTIFICATIONS ==========
     getNotifications: builder.query({
-      query: () => "/notifications",
-      providesTags: ["Notification"],
+      query: () => '/notifications',
+      providesTags: ['Notification'],
       keepUnusedDataFor: 60,
     }),
     markNotificationRead: builder.mutation({
       query: (id) => ({
         url: `/notifications/${id}/read`,
-        method: "PUT",
+        method: 'PUT',
       }),
-      invalidatesTags: ["Notification"],
+      invalidatesTags: ['Notification'],
     }),
     markAllNotificationsRead: builder.mutation({
       query: () => ({
-        url: "/notifications/read-all",
-        method: "PUT",
+        url: '/notifications/read-all',
+        method: 'PUT',
       }),
-      invalidatesTags: ["Notification"],
+      invalidatesTags: ['Notification'],
     }),
   }),
 });
 
+// ========== EXPORT ALL HOOKS ==========
 export const {
+  // Auth
   useGetMeQuery,
+  useLazyGetMeQuery,           // ✅ added here
   useRegisterMutation,
   useLoginMutation,
   useLogoutMutation,
@@ -462,12 +465,14 @@ export const {
   useSubmitVerificationMutation,
   useGetVerificationStatusQuery,
 
+  // Cars
   useGetCarsQuery,
   useGetCarQuery,
   useCreateCarMutation,
   useUpdateCarMutation,
   useDeleteCarMutation,
 
+  // Bookings
   useGetMyBookingsQuery,
   useGetBookingQuery,
   useCreateBookingMutation,
@@ -477,17 +482,21 @@ export const {
   useAdminCancelBookingMutation,
   useMarkReturnedMutation,
 
+  // Payments
   useInitiatePaymentMutation,
 
+  // Reviews
   useGetCarReviewsQuery,
   useCreateReviewMutation,
 
+  // Coupons
   useGetCouponsQuery,
   useCreateCouponMutation,
   useUpdateCouponMutation,
   useDeleteCouponMutation,
   useValidateCouponMutation,
 
+  // Tickets
   useGetTicketsQuery,
   useGetTicketQuery,
   useCreateTicketMutation,
@@ -495,6 +504,7 @@ export const {
   useAddTicketResponseMutation,
   useDeleteTicketMutation,
 
+  // Admin
   useGetUsersQuery,
   useGetUserDetailsQuery,
   useUpdateUserRoleMutation,
@@ -509,6 +519,7 @@ export const {
   useApproveVerificationMutation,
   useRejectVerificationMutation,
 
+  // Notifications
   useGetNotificationsQuery,
   useMarkNotificationReadMutation,
   useMarkAllNotificationsReadMutation,
